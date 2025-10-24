@@ -5,6 +5,7 @@ import type { LoginData } from './auth.service';
 @Controller('battleship')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
   @Post('create-credentials')
   createCredentials(
     @Body()
