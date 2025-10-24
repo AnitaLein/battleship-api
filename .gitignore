@@ -1,2 +1,10 @@
+# Ignore service account
 src/firebase-service-account.json
-node_modules/*
+
+dist/
+
+package-lock.json
+package.json
+
+# Ignore node modules
+node_modules/
