@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { db } from '../firebase';
-import bcrypt from 'node_modules/bcryptjs';
 
 export type Boats = {
   id: string;

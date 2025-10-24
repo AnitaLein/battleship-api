@@ -4,7 +4,8 @@ import { AuthService } from '../auth/auth.service';
 
 @Controller('battleship')
 export class PlayerController {
-  constructor(private readonly playerService: PlayerService,
+  constructor(
+    private readonly playerService: PlayerService,
     private readonly authService: AuthService,
   ) {}
 
