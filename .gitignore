@@ -8,3 +8,7 @@ package.json
 
 # Ignore node modules
 node_modules/
+
+battleship-api-c3847-firebase-adminsdk-fbsvc-ecd69c3985.json
+
+src/firebase
