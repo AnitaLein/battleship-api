@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { db } from '../firebase';
-import bcrypt from 'node_modules/bcryptjs';
+import * as bcrypt from 'bcryptjs';
 
 export type LoginData = {
   username: string;
@@ -10,6 +10,7 @@ export type LoginData = {
 @Injectable()
 export class AuthService {
   private credentialsCollection = db.collection('credentials');
+  private playersCollection = db.collection('players');
 
   async createCredentials(username: string, password: string) {
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -22,28 +23,14 @@ export class AuthService {
   }
 
   async validUserId(id: string): Promise<boolean> {
-    const snapshot = await this.credentialsCollection.get();
-
-    if (snapshot.empty) {
-      throw new Error('No credentials found');
-    }
-
-    // Find any document where data.id matches the input id
-    const userDoc = snapshot.docs.find((doc) => {
-      const data = doc.data();
-      return data.id?.toString() === id;
-    });
-
-    if (userDoc) {
-      return true;
-    } else {
-      // Optional: throw if you want, or just return false
-      console.log('User ID not found');
-      return false;
-    }
+    console.log(id);
+    const snapshot = await this.playersCollection
+      .where('userId', '==', id)
+      .get();
+    return !snapshot.empty;
   }
 
-  async login(data: LoginData): Promise<string> {
+  async login(data: LoginData): Promise<{ id: string }> {
     const snapshot = await this.credentialsCollection.get();
     if (snapshot.empty) {
       throw new Error('No credentials found');
@@ -66,6 +53,23 @@ export class AuthService {
     if (!isPasswordValid) {
       throw new Error('Invalid username or password');
     }
-    return userData.id.toString();
+    return { id: userData.id.toString() };
+  }
+
+  async checkTeamCreated(id: string): Promise<boolean> {
+    const snapshot = await this.playersCollection
+      .where('userId', '==', id)
+      .get();
+
+    if (snapshot.empty) {
+      throw new Error('No players found');
+    }
+    const teams = snapshot.docs.map((doc) => {
+      const data = doc.data();
+      if (data.name == '') {
+        return false;
+      } else return true;
+    });
+    return teams[0];
   }
 }

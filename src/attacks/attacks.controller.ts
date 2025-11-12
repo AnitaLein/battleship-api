@@ -1,34 +1,20 @@
-import { Body, Controller, Get, Param, Post, Req, Put } from '@nestjs/common';
-import { PlayerService } from './player.service';
-import { AuthService } from '../auth/auth.service';
+import { Body, Controller, Get, Post, Req } from '@nestjs/common';
 import type { Request, Response } from 'express';
-import { Boats } from 'src/boats/boats.service';
+import { AttacksService } from './attacks.service';
+import { AuthService } from 'src/auth/auth.service';
 
 @Controller('battleship')
-export class PlayerController {
+export class AttacksController {
   constructor(
-    private readonly playerService: PlayerService,
+    private readonly attacksService: AttacksService,
     private readonly authService: AuthService,
   ) {}
 
-  @Put('update/name')
-  async updatePlayerName(@Body('name') name: string, @Req() req: Request) {
-    const headerValue = req.get?.('userId') ?? req.headers['userId'];
-
-    const userId = Array.isArray(headerValue) ? headerValue[0] : headerValue;
-    if (typeof userId !== 'string' || userId.trim() === '') {
-      throw new Error('Missing or invalid userId header');
-    }
-    return await this.playerService.updatePlayerName(userId, name);
-  }
-
-  @Post('initPlayer')
-  async initPlayer() {
-    return this.playerService.initPlayer();
-  }
-
-  @Get('enemies')
-  async getAllPlayers(@Req() req: Request) {
+  @Post('attacks')
+  async attack(
+    @Body() body: { targetName: string; targetField: string },
+    @Req() req: Request,
+  ) {
     const headerValue = req.get?.('userId') ?? req.headers['userId'];
 
     const userId = Array.isArray(headerValue) ? headerValue[0] : headerValue;
@@ -37,9 +23,27 @@ export class PlayerController {
       throw new Error('Missing or invalid userId header');
     }
     if (await this.authService.validUserId(userId)) {
-      return this.playerService.getAllPlayers(userId);
-    } else {
-      throw new Error('Invalid userId');
+      return await this.attacksService.attack(
+        userId,
+        body.targetName,
+        body.targetField,
+      );
+    }
+  }
+
+  @Get('attacks')
+  async getAllAttacks(@Req() req: Request) {
+    const headerValue = req.get?.('userId') ?? req.headers['userId'];
+
+    const userId = Array.isArray(headerValue) ? headerValue[0] : headerValue;
+    console.log('test');
+    console.log(userId);
+    if (typeof userId !== 'string' || userId.trim() === '') {
+      throw new Error('Missing or invalid userId header');
+    }
+    if (await this.authService.validUserId(userId)) {
+      console.log('valid userId');
+      return await this.attacksService.getAllAttacks();
     }
   }
 }

@@ -1,0 +1,131 @@
+import { Injectable } from '@nestjs/common';
+import { db } from '../firebase';
+import { Player } from 'src/player/player.service';
+
+export type Attack = {
+  userId: string;
+  targetId: string;
+  date: string;
+  targetPos: string;
+  isHit: boolean | null;
+};
+
+@Injectable()
+export class AttacksService {
+  private playerCollection = db.collection('players');
+  private attacksCollection = db.collection('attacks');
+
+  async attack(userId: string, targetName: string, targetField: string) {
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0]; // "YYYY-MM-DD"
+
+    // Check if this user has already attacked today
+    const userAttacks = await this.attacksCollection
+      .where('userId', '==', userId)
+      .where('date', '==', todayStr)
+      .get();
+
+    if (!userAttacks.empty) {
+      throw new Error('Player already attacked today');
+    }
+
+    // Find target player by name
+    const targetUserSnapshot = await this.playerCollection
+      .where('name', '==', targetName)
+      .get();
+
+    if (targetUserSnapshot.empty) {
+      throw new Error(`No player found with name: ${targetName}`);
+    }
+
+    const targetDoc = targetUserSnapshot.docs[0];
+    const targetData = targetDoc.data() as Player;
+
+    // Check if the attack hits a boat
+    let isHit = false;
+
+    for (const boat of targetData.boats) {
+      console.log(boat);
+      if (boat.positions.includes(targetField)) {
+        isHit = true;
+        break;
+      }
+    }
+
+    // Save the attack record
+    const attackData: Attack = {
+      userId,
+      targetId: targetData.userId,
+      date: todayStr,
+      targetPos: targetField,
+      isHit,
+    };
+
+    await this.attacksCollection.add(attackData);
+
+    return {
+      message: isHit ? 'Hit!' : 'Miss!',
+      attack: attackData,
+    };
+  }
+
+  async getAllAttacks() {
+    console.log('test2');
+    const snapshot = await this.attacksCollection.get();
+
+    if (snapshot.empty) {
+      throw new Error('no attacks');
+    }
+
+    const attacks: {
+      userName: string;
+      targetName: string;
+      targetPos: string;
+      date: string;
+      isHit: boolean | null;
+    }[] = [];
+
+    for (const doc of snapshot.docs) {
+      const data = doc.data() as Attack;
+      console.log(data);
+      const date = data.date;
+      const isHit = data.isHit;
+      const userId = data.userId;
+      const targetPos = data.targetPos;
+      const targetId = data.targetId;
+      // Fetch player docs sequentially (no Promise.all)
+      // Fetch player docs sequentially using queries
+      const userQuery = await this.playerCollection
+        .where('userId', '==', userId)
+        .limit(1)
+        .get();
+
+      const targetQuery = await this.playerCollection
+        .where('userId', '==', targetId)
+        .limit(1)
+        .get();
+
+      const userData = !userQuery.empty
+        ? (userQuery.docs[0].data() as Player)
+        : undefined;
+
+      const targetData = !targetQuery.empty
+        ? (targetQuery.docs[0].data() as Player)
+        : undefined;
+
+      const userName = userData?.name ?? 'Unknown';
+      const targetName = targetData?.name ?? 'Unknown';
+      console.log(userName);
+      console.log(targetName);
+      attacks.push({
+        userName,
+        targetName,
+        targetPos,
+        date,
+        isHit,
+      });
+    }
+    console.log(attacks);
+    return attacks;
+  }
+}
