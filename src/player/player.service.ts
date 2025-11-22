@@ -1,11 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { db } from '../firebase';
-
-export type Boats = {
-  id: string;
-  size: number;
-  positions: string[];
-};
+import { Boats } from 'src/boats/boats.service';
 
 export type Player = {
   userId: string;
@@ -89,6 +84,31 @@ export class PlayerService {
 
     const updatedPlayers = await Promise.all(updatePromises);
     return updatedPlayers;
+  }
+
+  async updatePlayerHitPosition(userId: string, hitPosition: string) {
+    const snapshot = await this.playerCollection
+      .where('userId', '==', userId)
+      .get();
+    if (snapshot.empty) {
+      throw new Error(`No players found for userId: ${userId}`);
+    }
+    const doc = snapshot.docs[0];
+    const playerData = doc.data() as Player;
+    console.log('Player data before updating hit position:', playerData);
+    // Update boats to mark the hit position
+    const updatedBoats = playerData.boats.map((boat) => {
+      if (boat.hitPos.includes(hitPosition)) {
+        throw new Error(`Position ${hitPosition} wurde bereits getroffen. Versuche ein anderes Ziel.`);
+      }
+      return {
+        ...boat,
+        hitPos: boat.hitPos ? [...boat.hitPos, hitPosition] : [hitPosition],
+      };
+    });
+    console.log('Updated boats after hit position:', updatedBoats);
+    await doc.ref.update({ boats: updatedBoats });
+    return { success: true, id: doc.id, ...playerData, boats: updatedBoats };
   }
 
   async getAllPlayers(userId: string): Promise<string[]> {

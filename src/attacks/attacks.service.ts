@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { db } from '../firebase';
-import { Player } from 'src/player/player.service';
+import { Player, PlayerService } from 'src/player/player.service';
 
 export type Attack = {
   userId: string;
@@ -14,11 +14,15 @@ export type Attack = {
 export class AttacksService {
   private playerCollection = db.collection('players');
   private attacksCollection = db.collection('attacks');
+  private readonly playerService: PlayerService;
+
+  constructor(playerService: PlayerService) {
+    this.playerService = playerService;
+  }
 
   async attack(userId: string, targetName: string, targetField: string) {
     const today = new Date();
-    const todayStr = today.toISOString().split('T')[0]; // "YYYY-MM-DD"
-
+    const todayStr = today.getDate().toString().padStart(2, '0');
     // Check if this user has already attacked today
     const userAttacks = await this.attacksCollection
       .where('userId', '==', userId)
@@ -26,7 +30,11 @@ export class AttacksService {
       .get();
 
     if (!userAttacks.empty) {
-      throw new Error('Player already attacked today');
+      return {
+        success: false,
+        message:
+          'Ihr habt heute schon angegriffen. Der Kampf geht morgen weiter!',
+      };
     }
 
     // Find target player by name
@@ -43,7 +51,7 @@ export class AttacksService {
 
     // Check if the attack hits a boat
     let isHit = false;
-
+    console.log(targetData.boats);
     for (const boat of targetData.boats) {
       console.log(boat);
       if (boat.positions.includes(targetField)) {
@@ -60,12 +68,24 @@ export class AttacksService {
       targetPos: targetField,
       isHit,
     };
-
+    try {
+      await this.playerService.updatePlayerHitPosition(
+        targetData.userId,
+        targetField,
+      );
+    } catch (error) {
+      return {
+        success: false,
+        message: error.message,
+      };
+    }
     await this.attacksCollection.add(attackData);
 
     return {
-      message: isHit ? 'Hit!' : 'Miss!',
-      attack: attackData,
+      success: true,
+      targetName: targetName,
+      targetPos: targetField,
+      isHit: isHit,
     };
   }
 
@@ -115,8 +135,6 @@ export class AttacksService {
 
       const userName = userData?.name ?? 'Unknown';
       const targetName = targetData?.name ?? 'Unknown';
-      console.log(userName);
-      console.log(targetName);
       attacks.push({
         userName,
         targetName,
@@ -125,7 +143,7 @@ export class AttacksService {
         isHit,
       });
     }
-    console.log(attacks);
+    attacks.sort((a, b) => (a.date < b.date ? 1 : -1));
     return attacks;
   }
 }
