@@ -5,7 +5,8 @@ import { Boats } from 'src/boats/boats.service';
 export type Player = {
   userId: string;
   name: string;
-  boats: Boats[] | [];
+  boats: Boats[];
+  attackedPos: string[];
 };
 
 @Injectable()
@@ -48,6 +49,7 @@ export class PlayerService {
       name: '',
       userId: randomUserID,
       boats: [],
+      attackedPos: [],
     };
 
     await this.playerCollection.add(body);
@@ -95,20 +97,38 @@ export class PlayerService {
     }
     const doc = snapshot.docs[0];
     const playerData = doc.data() as Player;
-    console.log('Player data before updating hit position:', playerData);
     // Update boats to mark the hit position
-    const updatedBoats = playerData.boats.map((boat) => {
-      if (boat.hitPos.includes(hitPosition)) {
-        throw new Error(`Position ${hitPosition} wurde bereits getroffen. Versuche ein anderes Ziel.`);
+    if (playerData.attackedPos.includes(hitPosition)) {
+      throw new Error(
+        `Position ${hitPosition} wurde bereits angegriffen. Wähle ein anderes Feld.`,
+      );
+    }
+    playerData.attackedPos.push(hitPosition);
+    // check if any boat sunk and update boats array accordingly
+    let boatSunk = false;
+    for (const boat of playerData.boats) {
+      const isSunk = boat.positions.every((pos) =>
+        playerData.attackedPos.includes(pos),
+      );
+      if (isSunk && !(boat as any).sunk) {
+        // mark boat as sunk in local object
+        (boat as any).sunk = true;
+        boatSunk = true;
       }
-      return {
-        ...boat,
-        hitPos: boat.hitPos ? [...boat.hitPos, hitPosition] : [hitPosition],
-      };
+    }
+    console.log('boatSunk:', boatSunk);
+
+    // persist changes to attacked positions and boats
+    await doc.ref.update({
+      attackedPos: playerData.attackedPos,
+      boats: playerData.boats,
     });
-    console.log('Updated boats after hit position:', updatedBoats);
-    await doc.ref.update({ boats: updatedBoats });
-    return { success: true, id: doc.id, ...playerData, boats: updatedBoats };
+
+    return {
+      success: true,
+      id: doc.id,
+      ...playerData,
+    };
   }
 
   async getAllPlayers(userId: string): Promise<string[]> {
