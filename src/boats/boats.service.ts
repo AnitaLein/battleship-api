@@ -4,6 +4,7 @@ import { db } from '../firebase';
 export type Boats = {
   size: number;
   positions: string[];
+  sunk?: boolean;
 };
 
 @Injectable()

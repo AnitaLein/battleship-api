@@ -128,6 +128,7 @@ export class PlayerService {
       success: true,
       id: doc.id,
       ...playerData,
+      sunk: boatSunk,
     };
   }
 

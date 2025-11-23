@@ -8,6 +8,7 @@ export type Attack = {
   date: string;
   targetPos: string;
   isHit: boolean | null;
+  sunk: boolean | null;
 };
 
 @Injectable()
@@ -51,34 +52,34 @@ export class AttacksService {
 
     // Check if the attack hits a boat
     let isHit = false;
-    console.log(targetData.boats);
     for (const boat of targetData.boats) {
-      console.log(boat);
       if (boat.positions.includes(targetField)) {
         isHit = true;
         break;
       }
     }
-
-    // Save the attack record
-    const attackData: Attack = {
-      userId,
-      targetId: targetData.userId,
-      date: todayStr,
-      targetPos: targetField,
-      isHit,
-    };
+    let boatSunk = false;
     try {
-      await this.playerService.updatePlayerHitPosition(
+      const res = await this.playerService.updatePlayerHitPosition(
         targetData.userId,
         targetField,
       );
+      boatSunk = res.sunk ?? false;
     } catch (error) {
       return {
         success: false,
         message: error.message,
       };
     }
+
+    const attackData: Attack = {
+      userId,
+      targetId: targetData.userId,
+      date: todayStr,
+      targetPos: targetField,
+      isHit,
+      sunk: boatSunk,
+    };
     await this.attacksCollection.add(attackData);
 
     return {
@@ -86,11 +87,11 @@ export class AttacksService {
       targetName: targetName,
       targetPos: targetField,
       isHit: isHit,
+      isSunk: boatSunk,
     };
   }
 
   async getAllAttacks() {
-    console.log('test2');
     const snapshot = await this.attacksCollection.get();
 
     if (snapshot.empty) {
@@ -103,6 +104,7 @@ export class AttacksService {
       targetPos: string;
       date: string;
       isHit: boolean | null;
+      isSunk: boolean | null;
     }[] = [];
 
     for (const doc of snapshot.docs) {
@@ -110,6 +112,8 @@ export class AttacksService {
       console.log(data);
       const date = data.date;
       const isHit = data.isHit;
+      const isSunk = data.sunk;
+
       const userId = data.userId;
       const targetPos = data.targetPos;
       const targetId = data.targetId;
@@ -141,6 +145,7 @@ export class AttacksService {
         targetPos,
         date,
         isHit,
+        isSunk,
       });
     }
     attacks.sort((a, b) => (a.date < b.date ? 1 : -1));
