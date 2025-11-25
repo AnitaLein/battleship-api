@@ -3,6 +3,7 @@ import { db } from '../firebase';
 import { Player, PlayerService } from 'src/player/player.service';
 
 export type Attack = {
+  id: string;
   userId: string;
   targetId: string;
   date: string;
@@ -71,8 +72,9 @@ export class AttacksService {
         message: error.message,
       };
     }
-
+    const randomAttackId = Math.random().toString(36).substring(2, 15);
     const attackData: Attack = {
+      id: randomAttackId,
       userId,
       targetId: targetData.userId,
       date: todayStr,
@@ -83,6 +85,7 @@ export class AttacksService {
     await this.attacksCollection.add(attackData);
 
     return {
+      id: randomAttackId,
       success: true,
       targetName: targetName,
       targetPos: targetField,
@@ -99,6 +102,7 @@ export class AttacksService {
     }
 
     const attacks: {
+      id: string;
       userName: string;
       targetName: string;
       targetPos: string;
@@ -140,6 +144,7 @@ export class AttacksService {
       const userName = userData?.name ?? 'Unknown';
       const targetName = targetData?.name ?? 'Unknown';
       attacks.push({
+        id: data.id,
         userName,
         targetName,
         targetPos,

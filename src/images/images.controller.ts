@@ -63,4 +63,58 @@ export class ImagesController {
       return { url };
     }
   }
+
+  @Post('attackPicture/')
+  async uploadAttackPicture(
+    @Body('attackId') attackId: string,
+    @Body('image') base64Image: string,
+    @Req() req: Request,
+  ) {
+    if (!base64Image) {
+      throw new BadRequestException('No image provided');
+    }
+    const headerValue = req.get?.('userId') ?? req.headers['userId'];
+    const userId = Array.isArray(headerValue) ? headerValue[0] : headerValue;
+    if (typeof userId !== 'string' || userId.trim() === '') {
+      throw new Error('Missing or invalid userId header');
+    }
+    if (await this.authService.validUserId(userId)) {
+      try {
+        const url = await this.imagesService.uploadAttackPicture(
+          attackId,
+          base64Image,
+        );
+
+        return {
+          message: 'Attack picture uploaded successfully',
+          url,
+        };
+      } catch (error) {
+        throw new BadRequestException(error.message);
+      }
+    }
+  }
+
+  @Get('attackPicture/:attackId')
+  async getAttackPicture(
+    @Param('attackId') attackId: string,
+    @Req() req: Request,
+  ) {
+    const headerValue = req.get?.('userId') ?? req.headers['userId'];
+    const userId = Array.isArray(headerValue) ? headerValue[0] : headerValue;
+    if (typeof userId !== 'string' || userId.trim() === '') {
+      throw new Error('Missing or invalid userId header');
+    }
+    if (await this.authService.validUserId(userId)) {
+      try {
+        const url = await this.imagesService.getAttackPictureUrl(attackId);
+        return {
+          message: 'Attack picture retrieved successfully',
+          url,
+        };
+      } catch (error) {
+        throw new BadRequestException(error.message);
+      }
+    }
+  }
 }
