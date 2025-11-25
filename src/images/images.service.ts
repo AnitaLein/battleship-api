@@ -3,13 +3,13 @@ import { bucket, db, admin } from '../firebase';
 
 export class ImagesService {
   private usersCollection = db.collection('users');
+  private playerCollection = db.collection('players');
   private attackImagesCollection = db.collection('attackImages');
 
   async uploadProfilePicture(userId: string, base64Image: string) {
     if (!userId || !base64Image) {
       throw new Error('Missing userId or image');
     }
-    console.log('in function');
     // Convert Base64 string to buffer
     const buffer = Buffer.from(base64Image, 'base64');
 
@@ -26,8 +26,6 @@ export class ImagesService {
       resumable: false,
       validation: 'md5',
     });
-
-    console.log(save);
 
     // Generate a public signed URL
     const [url] = await file.getSignedUrl({
@@ -47,6 +45,26 @@ export class ImagesService {
     return url;
   }
 
+  async getEnemyProfilePictureUrl(enemyName: string) {
+    const snapshot = await this.playerCollection
+      .where('name', '==', enemyName)
+      .limit(1)
+      .get();
+    if (snapshot.empty) {
+      throw new Error('No player found');
+    }
+    const playerData = snapshot.docs[0].data();
+    const file = bucket.file(`profilePictures/${playerData.userId}.jpg`);
+    const [exists] = await file.exists();
+    if (!exists) throw new NotFoundException('Profile picture not found');
+
+    const [url] = await file.getSignedUrl({
+      action: 'read',
+      expires: '2030-03-01',
+    });
+    return url;
+  }
+
   async getProfilePictureUrl(userId: string) {
     const file = bucket.file(`profilePictures/${userId}.jpg`);
 
@@ -57,7 +75,6 @@ export class ImagesService {
       action: 'read',
       expires: '2030-03-01',
     });
-    console.log(url);
     return url;
   }
 

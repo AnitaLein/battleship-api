@@ -29,7 +29,6 @@ export class ImagesController {
     const headerValue = req.get?.('userId') ?? req.headers['userId'];
 
     const userId = Array.isArray(headerValue) ? headerValue[0] : headerValue;
-    console.log(userId);
     if (typeof userId !== 'string' || userId.trim() === '') {
       throw new Error('Missing or invalid userId header');
     }
@@ -54,12 +53,29 @@ export class ImagesController {
     const headerValue = req.get?.('userId') ?? req.headers['userId'];
 
     const userId = Array.isArray(headerValue) ? headerValue[0] : headerValue;
-    console.log(userId);
     if (typeof userId !== 'string' || userId.trim() === '') {
       throw new Error('Missing or invalid userId header');
     }
     if (await this.authService.validUserId(userId)) {
       const url = await this.imagesService.getProfilePictureUrl(userId);
+      return { url };
+    }
+  }
+
+  @Post('enemyProfilePicture')
+  async getEnemyProfilePicture(
+    @Req() req: Request,
+    @Body('enemyTeamName') enemyTeamName: string,
+  ) {
+    const headerValue = req.get?.('userId') ?? req.headers['userId'];
+
+    const userId = Array.isArray(headerValue) ? headerValue[0] : headerValue;
+    if (typeof userId !== 'string' || userId.trim() === '') {
+      throw new Error('Missing or invalid userId header');
+    }
+    if (await this.authService.validUserId(userId)) {
+      const url =
+        await this.imagesService.getEnemyProfilePictureUrl(enemyTeamName);
       return { url };
     }
   }
