@@ -31,6 +31,7 @@ export class AuthService {
   }
 
   async login(data: LoginData): Promise<{ id: string }> {
+    console.log(data);
     const snapshot = await this.credentialsCollection.get();
     if (snapshot.empty) {
       throw new Error('No credentials found');
@@ -53,12 +54,17 @@ export class AuthService {
     if (!isPasswordValid) {
       throw new Error('Invalid username or password');
     }
-    return { id: userData.id.toString() };
+    if (!userData.id) {
+      throw new Error('User ID not found');
+    }
+    console.log(userData.id.toString());
+    return userData.id.toString() ;
   }
 
   async checkTeamCreated(id: string): Promise<boolean> {
     const snapshot = await this.playersCollection
       .where('userId', '==', id)
+      .limit(1)
       .get();
 
     if (snapshot.empty) {
