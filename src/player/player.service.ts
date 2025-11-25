@@ -59,7 +59,6 @@ export class PlayerService {
 
   async updatePlayerName(id: string, name: string) {
     // Query the players collection for documents matching this userId
-    console.log('Updating player name for userId:', id, 'to:', name);
 
     // make absolutely sure the id is a string
     const userId = String(id).trim();
@@ -72,15 +71,12 @@ export class PlayerService {
       .where('userId', '==', userId)
       .get();
 
-    console.log('snapshot.empty:', snapshot.empty);
-
     if (snapshot.empty) {
       throw new Error(`No players found for userId: ${userId}`);
     }
 
     const updatePromises = snapshot.docs.map(async (doc) => {
       await doc.ref.update({ name });
-      console.log(`Updated doc ${doc.id} with new name: ${name}`);
       return { id: doc.id, ...doc.data(), name };
     });
 
@@ -107,16 +103,15 @@ export class PlayerService {
     // check if any boat sunk and update boats array accordingly
     let boatSunk = false;
     for (const boat of playerData.boats) {
-      const isSunk = boat.positions.every((pos) =>
-        playerData.attackedPos.includes(pos),
-      );
+      const isSunk = boat.positions.every((pos) => {
+        return playerData.attackedPos.includes(pos);
+      });
       if (isSunk && !(boat as any).sunk) {
         // mark boat as sunk in local object
         (boat as any).sunk = true;
         boatSunk = true;
       }
     }
-    console.log('boatSunk:', boatSunk);
 
     // persist changes to attacked positions and boats
     await doc.ref.update({
@@ -132,6 +127,18 @@ export class PlayerService {
     };
   }
 
+  async getOwnPlayer(userId: string) {
+    const snapshot = await this.playerCollection
+      .where('userId', '==', userId)
+      .get();
+    if (snapshot.empty) {
+      throw new Error('No players found');
+    }
+    const doc = snapshot.docs[0];
+    const playerData = doc.data() as Player;
+    return { name: playerData.name };
+  }
+
   async getAllPlayers(userId: string): Promise<string[]> {
     const snapshot = await this.playerCollection
       .where('userId', '!=', userId)
@@ -144,7 +151,6 @@ export class PlayerService {
       const docData = doc.data();
       players.push(docData.name);
     });
-    console.log(players);
     return players;
   }
 }

@@ -42,7 +42,6 @@ export class AuthController {
     const headerValue = req.get?.('userId') ?? req.headers['userId'];
 
     const userId = Array.isArray(headerValue) ? headerValue[0] : headerValue;
-    console.log(userId);
     if (typeof userId !== 'string' || userId.trim() === '') {
       throw new Error('Missing or invalid userId header');
     }

@@ -18,7 +18,6 @@ export class AttacksController {
     const headerValue = req.get?.('userId') ?? req.headers['userId'];
 
     const userId = Array.isArray(headerValue) ? headerValue[0] : headerValue;
-    console.log(userId);
     if (typeof userId !== 'string' || userId.trim() === '') {
       throw new Error('Missing or invalid userId header');
     }
@@ -36,13 +35,10 @@ export class AttacksController {
     const headerValue = req.get?.('userId') ?? req.headers['userId'];
 
     const userId = Array.isArray(headerValue) ? headerValue[0] : headerValue;
-    console.log('test');
-    console.log(userId);
     if (typeof userId !== 'string' || userId.trim() === '') {
       throw new Error('Missing or invalid userId header');
     }
     if (await this.authService.validUserId(userId)) {
-      console.log('valid userId');
       return await this.attacksService.getAllAttacks();
     }
   }
