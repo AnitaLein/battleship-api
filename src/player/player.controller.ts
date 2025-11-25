@@ -27,12 +27,26 @@ export class PlayerController {
     return this.playerService.initPlayer();
   }
 
+  @Get('ownPlayer')
+  async getOwnPlayer(@Req() req: Request) {
+    const headerValue = req.get?.('userId') ?? req.headers['userId'];
+
+    const userId = Array.isArray(headerValue) ? headerValue[0] : headerValue;
+    if (typeof userId !== 'string' || userId.trim() === '') {
+      throw new Error('Missing or invalid userId header');
+    }
+    if (await this.authService.validUserId(userId)) {
+      return this.playerService.getOwnPlayer(userId);
+    } else {
+      throw new Error('Invalid userId');
+    }
+  }
+
   @Get('enemies')
   async getAllPlayers(@Req() req: Request) {
     const headerValue = req.get?.('userId') ?? req.headers['userId'];
 
     const userId = Array.isArray(headerValue) ? headerValue[0] : headerValue;
-    console.log(userId);
     if (typeof userId !== 'string' || userId.trim() === '') {
       throw new Error('Missing or invalid userId header');
     }
