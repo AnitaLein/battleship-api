@@ -5,6 +5,15 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
+  "ignore": [
+      "node_modules",
+      ".git",
+      ".next",
+      ".next/**",
+      "firebase-debug.log",
+      "firebase-debug.*.log",
+      "functions"
+    ],
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
