@@ -1,30 +1,21 @@
-# ---- Base image ----
-    FROM node:18-alpine AS builder
-    WORKDIR /app
-    
-    COPY package*.json ./
-    RUN npm install
-    
-    COPY . .
-    RUN npm run build
-    
-    # ---- Production image ----
-    FROM node:18-alpine AS runner
-    WORKDIR /app
-    
-    ENV NODE_ENV=production
-    ENV PORT=8080
-    
-    # Copy only production package files
-    COPY package*.json ./
-    
-    # Install only production dependencies
-    RUN npm install --omit=dev
-    
-    # Copy built code
-    COPY --from=builder /app/dist ./dist
-    
-    EXPOSE 8080
-    
-    CMD ["node", "dist/main.js"]
-    
+# Use Node.js LTS version as the base image
+FROM node:16
+
+# Set working directory
+WORKDIR /usr/src/app
+
+# Copy package.json and install dependencies
+COPY package*.json ./
+RUN npm install
+
+# Copy the rest of the application files
+COPY . .
+
+# Build the NestJS app
+RUN npm run build
+
+# Expose the port on which your app will run
+EXPOSE 8080
+
+# Start the NestJS app
+CMD ["npm", "run", "start:prod"]
