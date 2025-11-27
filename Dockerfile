@@ -13,6 +13,8 @@ COPY . .
 
 # Build the NestJS app
 RUN npm run build
+# Prune dev deps
+RUN npm prune --production
 
 # Expose the port on which your app will run
 EXPOSE 8080
