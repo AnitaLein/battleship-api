@@ -2,7 +2,7 @@ import * as admin from 'firebase-admin';
 
 const project_id = process.env.FIREBASE_PROJECT_ID;
 const private_key_id = process.env.FIREBASE_PRIVATE_KEY_ID;
-const private_key = process.env.FIREBASE_PRIVATE_KEY?.replace(/\n/g, '\n');
+const private_key = process.env.FIREBASE_PRIVATE_KEY
 const client_id = process.env.CLIENT_ID;
 
 const serviceAccount = {
