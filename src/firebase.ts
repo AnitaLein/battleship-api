@@ -1,7 +1,11 @@
 import * as admin from 'firebase-admin';
 
-admin.initializeApp();
+const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT
 
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
+  storageBucket: 'battleship_images',
+});
 
 export const db = admin.firestore();
 export const bucket = admin.storage().bucket();
