@@ -98,10 +98,7 @@ export class AttacksService {
     const snapshot = await this.attacksCollection.get();
 
     if (snapshot.empty) {
-      return {
-        success: false,
-        message: 'Keine vergangenen Angriffe.',
-      };
+      throw new Error('Keine Angriffe gefunden');
     }
 
     const attacks: {
@@ -116,6 +113,7 @@ export class AttacksService {
 
     for (const doc of snapshot.docs) {
       const data = doc.data() as Attack;
+      console.log(data);
       const date = data.date;
       const isHit = data.isHit;
       const isSunk = data.sunk;
@@ -156,9 +154,6 @@ export class AttacksService {
       });
     }
     attacks.sort((a, b) => (a.date < b.date ? 1 : -1));
-    return {
-      success: true,
-      data: attacks,
-    };
+    return attacks;
   }
 }
