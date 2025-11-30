@@ -98,7 +98,7 @@ export class AttacksService {
     const snapshot = await this.attacksCollection.get();
 
     if (snapshot.empty) {
-      throw new Error('no attacks');
+      return { success: false };
     }
 
     const attacks: {
