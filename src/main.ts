@@ -5,7 +5,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   // Enable CORS for all origins (you can customize this for production)
   app.enableCors({
-    origin: 'https://battleship-frontend-dusky.vercel.app/',
+    origin: 'https://battleship-frontend-dusky.vercel.app',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: ['Content-Type', 'UserId'],
     credentials: true,
