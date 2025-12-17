@@ -32,7 +32,7 @@ export class AttacksService {
       .get();
 
     const attackCount = userAttacks.size;
-    if (attackCount > 2) {
+    if (attackCount > 1) {
       return {
         success: false,
         message:
