@@ -1,18 +1,14 @@
 import * as admin from 'firebase-admin';
 
-const project_id = process.env.FIREBASE_PROJECT_ID;
-const private_key_id = process.env.FIREBASE_PRIVATE_KEY_ID;
-const private_key = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n')
-const client_id = process.env.CLIENT_ID;
-
 const serviceAccount = {
   type: 'service_account',
-  project_id: project_id,
-  private_key_id: private_key_id,
-  private_key: private_key,
+  project_id: 'battleship-api-c3847',
+  private_key_id: 'f572385372a28b90cf80d942019e19d14d6cb13d',
+  private_key:
+    '-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC3oLF1IdAxrL8j\nidIdSoqzUHaEXndcoR7MC/faUpUMnI8tfYHeTTeliTJOfetQMD7Rve89UTS6MZQq\nc21wGRgphOBfG4dlXpPxQJ1ubiGjfPfligWYl02xJgXqdMn2tN9WWJGJ2yX7y/WY\nhKCBsmauFfO2wRFeE7knCY+F/Bk1lU3UfYpbfygUkzPHJanZlECaBTPAVJwy0Lsa\nJCsqL0QaTkRI1va+y5rQnh41/pFq67XJ/xLvI4Jw1lXzr5V+64FWJxZU07eFz5ma\njoFd9a/x6q6l5ZhcEjYl1dJHfnCVGTLLRKIp7tgLVaOBnQYI+/Z9KpktI9i1XL8B\nJp8SljQRAgMBAAECggEAEfvkdV7O55aOD7p3QBQlWmN2gAdKdGF5RS2k5BZzb41D\nvoZMuktguE8kBKjza2KWPG94J061NckWREQSw0hJ5AMWAGqPS5/EKHwWDxMtKzhZ\nhPsMCkJDQybArJIsl4NmXiwFcPVsFmmGz52ppJom0UToHg1xmH+hAhA/JLWoeGVQ\n227kuFIJ8sRD0S7kX8JWYetEBIDfZ+VEWrw+ESJamYEXEbKXH8XV5nf5Qf/Wxh5v\nh9/k8qSpO/JKCFRTOkOD1dIPDuOvEsPOyD+dRwEIBl3qlkDPYd/w80W8YNpcIZdj\nPX9OzaORmDSEf12fhwBPugdkqS3GDroM6IrMUEurQwKBgQDs/Govr/YMiMSAkxfh\n3txjfHYlfG9biZBnwvttHTR1S95eih7ybbQ2uvCy8yhB0FA1tUgQ0N7rk7LNuhdA\nuUlwTwRP2TKns8YaiHINFqZafnBCX5YDbYIE5P/dWlWSnuoHYb6ClpOyh5CGiXXq\nSMj0sTb8V2G9DRRTsR5g0EW48wKBgQDGXFLDxxXo65UA4YELspQKp1CPFQPyjmHM\nfXwHkCnnAItvVfSMjGbLZNVqEMxE4GrQp9Ul9AF33n5zPatBEL8J71lNdHCz/Or7\nkZEdryMuJhWTiM2DJ+eRG45bkO/K6yziB2fWv42r0MhqXsqPaVY3VA2rcyp0+qkT\nC0hdFhAf6wKBgQCxQJJDnL7R3THsYRiJzmDU4HCV1R6NPrUNht77W86ytM5bs781\n4Cvci7IghpJjt2Vm5nJCcZdqaAxip39g37U4FUHKX0/t8x6HFesIMxq1sMBSRKA1\nbCDFfGqLq1c51TaB0u/lSK6r542HsyTI2SvFKQ9RaiImfrPnbSCllOGxVQKBgDTF\nPPN+lFKZ0dMhKu6MvJu09VaLVbiCrnvzajqs3Kjq2S1uZZe6hmJX2frUqzMrrN8D\nt03Yg0d7dpJ79oJhzSD8fvp/HriTcYQprryB6k8NrLHKNDpPNGjDNvUfMtv+ArvD\nEpnr7emmqpq5yxOqB1jC0Lwq8EGcqbw6RS8WfoWvAoGBAN7i4N/Zp+QaOzMQSprI\n5WWBQhXLF4rarA9WCHORF4JVjJ0/0tUilCU0Nn1E2UgRSnchHwNPbO1OU48Z+uET\nHNWxMHSDoc174ADSBJFyUmA9bnPRyH7X34cybIb9/RTmU1U8nmccgmSuhipqslZC\n7yNpjS6tRjBAuksaeShcGrsW\n-----END PRIVATE KEY-----\n',
   client_email:
     'firebase-adminsdk-fbsvc@battleship-api-c3847.iam.gserviceaccount.com',
-  client_id: client_id,
+  client_id: '112206136402803921790',
   auth_uri: 'https://accounts.google.com/o/oauth2/auth',
   token_uri: 'https://oauth2.googleapis.com/token',
   auth_provider_x509_cert_url: 'https://www.googleapis.com/oauth2/v1/certs',

@@ -31,12 +31,11 @@ export class AttacksService {
       .where('date', '==', todayStr)
       .get();
 
-    const attackCount = userAttacks.size;
-    if (attackCount > 1) {
+    if (!userAttacks.empty) {
       return {
         success: false,
         message:
-          'Ihr habt heute schon zwei Mal angegriffen. Der Kampf geht morgen weiter!',
+          'Ihr habt heute schon angegriffen. Der Kampf geht morgen weiter!',
       };
     }
 
