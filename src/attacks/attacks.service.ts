@@ -26,6 +26,7 @@ export class AttacksService {
     const today = new Date();
     const todayStr = today.getDate().toString().padStart(2, '0');
     // Check if this user has already attacked today
+    /*
     const userAttacks = await this.attacksCollection
       .where('userId', '==', userId)
       .where('date', '==', todayStr)
@@ -37,7 +38,7 @@ export class AttacksService {
         message:
           'Ihr habt heute schon angegriffen. Der Kampf geht morgen weiter!',
       };
-    }
+    }*/
 
     // Find target player by name
     const targetUserSnapshot = await this.playerCollection
